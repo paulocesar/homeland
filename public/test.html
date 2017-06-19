@@ -1,0 +1,64 @@
+<html>
+<head>
+    <script src="/public/lib/jquery.min.js"></script>
+    <script src="/public/lib/pixi.min.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        var socket = new WebSocket("ws://localhost:8081/ws");
+        socket.onmessage = function (event) { console.log(event.data); };
+        function send(value) { socket.send(value); }
+        setTimeout(() => {
+            const data = JSON.stringify({ "c": 1, "p": "100", "t": 1 });
+            console.log("sending ", data);
+            send(data);
+        }, 2000);
+
+        var app = PIXI.autoDetectRenderer(800, 600);
+        document.body.appendChild(app.view);
+
+        var bunny = PIXI.Sprite.fromImage('/public/img/explorer.png')
+        bunny.anchor.set(0.5);
+        bunny.x = 800 / 2;
+        bunny.y = 600 / 2;
+
+        var container = new PIXI.Container();
+        container.addChild(bunny);
+        container.interactive = true;
+        container.hitArea = new PIXI.Rectangle(0, 0, 800, 600);
+
+        var destiny = { x: bunny.x, y: bunny.y };
+        container.mousedown = function (ev) {
+            destiny.x = ev.data.global.x;
+            destiny.y = ev.data.global.y;
+        };
+
+        var lastTime = (new Date()).getTime();
+        var update = function () {
+            var time = (new Date()).getTime();
+            var elapsed = time - lastTime;
+            lastTime = time;
+
+            var speed = 3;
+            var offset = 0;
+            if (bunny.x !== destiny.x) {
+                offset = Math.abs(destiny.x - bunny.x);
+                if (speed > offset) { speed = offset; }
+                bunny.x += ((destiny.x - bunny.x) / offset) * speed;
+            }
+
+            if (bunny.y !== destiny.y) {
+                offset = Math.abs(destiny.y - bunny.y);
+                speed = 3;
+                if (speed > offset) { speed = offset; }
+                bunny.y += ((destiny.y - bunny.y) / offset) * speed;
+            }
+
+            app.render(container);
+        }
+
+        setInterval(update, 10);
+    </script>
+</body>
+
+</html>
