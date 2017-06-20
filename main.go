@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -30,16 +29,15 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for {
-		act := gameAction{}
-		err := conn.ReadJSON(&act)
+		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error reading json")
 			break
 		}
 
-		fmt.Printf("Got message: %#v\n", act)
+		log.Printf("Got mesage: %s\n", message)
 
-		if err := conn.WriteJSON(act); err != nil {
+		if err := conn.WriteMessage(messageType, message); err != nil {
 			log.Println("Error on write json")
 			break
 		}
