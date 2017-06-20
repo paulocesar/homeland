@@ -5,7 +5,7 @@
 </head>
 <body>
     <script type="text/javascript">
-        var socket = new WebSocket("ws://localhost:8081/ws");
+        var socket = new WebSocket("wss://localhost:8081/ws");
         socket.onmessage = function (event) { console.log(event.data); };
         function send(value) { socket.send(value); }
         setTimeout(() => {

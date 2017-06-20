@@ -33,13 +33,15 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		act := gameAction{}
 		err := conn.ReadJSON(&act)
 		if err != nil {
-			log.Println("Error reading json", err)
+			log.Println("Error reading json")
+			break
 		}
 
-		fmt.Printf("Got message: %#v", act)
+		fmt.Printf("Got message: %#v\n", act)
 
 		if err := conn.WriteJSON(act); err != nil {
-			log.Println(err)
+			log.Println("Error on write json")
+			break
 		}
 		/*
 			messageType, r, err := conn.NextReader()
@@ -69,8 +71,7 @@ func main() {
 	fs := http.FileServer(http.Dir("public"))
 	http.Handle("/public/", http.StripPrefix("/public/", fs))
 
-	//err := http.ListenAndServeTLS(":8081", "certs/server.pem", "certs/server.key", nil)
-	err := http.ListenAndServe(":8081", nil)
+	err := http.ListenAndServeTLS(":8081", "certs/certificate.pem", "certs/key.pem", nil)
 	if err != nil {
 		log.Println(err)
 	}
